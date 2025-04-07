@@ -1,0 +1,42 @@
+.window { 
+    background-color: #00000080;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.windowform { 
+    background-color: #151515;
+    width: 25em;
+    border-radius: 1em;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    padding: 1em;
+    row-gap: 1em; 
+    justify-content: center;
+    align-items: center;
+}
+
+.line {
+    padding: 0.5pt 5em;
+    border-radius: 1em;
+    background-color: #202020;
+    list-style-type: none;
+}
+
+.line:hover {
+    background-color: #464646;
+    border: solid white 0.1em;
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.line:active {
+    background-color: #111111;
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
