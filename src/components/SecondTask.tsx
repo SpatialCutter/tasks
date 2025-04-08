@@ -11,126 +11,87 @@
 // в окне с мобом должна быть кнопка удалить с соответствующим функционалом
 // функцию добавления и удаления описать тут, а потом протипизировав передать его в ваш компонент
 
-import { Component, MouseEventHandler, useState } from 'react';
+import { useState } from 'react';
+import { executor } from '../config';
 import './../assets/minecraft.css';
+import Mob from './../types/Mob';
+import MobListMock from './../mocks/MobList';
+import ModalWindow from './Modal';
+import { ModalMobDetail, ModalMobCreate, AlertMessage } from './Modal';
+import MobList from './MobList';
 
-type Mob = {
-  name : string,
-  image : string,
-  id : number,
-  nickname : string
-};
+function MinecraftMobManager({executer}: {executer : string}) {
+  const [isModal, setIsModal] = useState<("new" | "detail" | null)>(null);
+  const [selectedMobID, setSelectedMobID] = useState<number | null>(null);
+  const [moblist, setMoblist] = useState<Array<Mob>>(MobListMock);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
-function MobLine(prop: {mob: Mob, onClick: () => void }) {
-
-
-  return <li onClick={prop.onClick}>
-    <p>{prop.mob.id}) {prop.mob.name} [ {prop.mob.nickname} ] </p>
-  </li>
-}
-
-function MobList(prop: {list : Array<Mob>, onMobClick: (mob: Mob) => void}) {
-  return <ul className='line'>
-    {prop.list.map(n => <MobLine key={n.id} mob={n} onClick={() => prop.onMobClick(n)}/>)}
-  </ul>
-}
-
-function DetailMob(prop : {mob: Mob, removeclick: MouseEventHandler, cancelclick: MouseEventHandler}) {
-
-  return <div className='window'>
-    <form  className='windowform'>
-      <p>Детали моба</p>
-      <img src={prop.mob.image} style={{ width: 100, height: 100}}/>
-      <p>ID: {prop.mob.id}</p>
-      <p>name: {prop.mob.name}</p>
-      <p>nickname: {prop.mob.nickname}</p>
-      <button onClick={prop.removeclick}>Удалить</button>
-      <button onClick={prop.cancelclick}>Отмена</button>
-    </form>
-  </div> 
-}
-
-function CreateMob(prop : {savemob: (mob: Mob) => void, cancelclick: MouseEventHandler}) {
-  const [id, setId] = useState<number>(0);
-  const [name, setName] = useState<string>('');
-  const [nickname, setNickname] = useState<string>('');
-  const [image, setImage] = useState<string>('');
-
-  const okclick: MouseEventHandler = (e) => {
-    e.preventDefault();
-    const mob: Mob = { name, image, id, nickname }
-    prop.savemob(mob);
-  }
-
-  return <div className='window'>
-    <form  className='windowform'>
-      <p>Создать нового моба</p>
-      <label>ID:</label>
-      <input type="number" value={id} onChange={(e) => setId(Number(e.target.value))} />
-      <label>name:</label>
-      <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
-      <label>nickname:</label>
-      <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} />
-      <label>image:</label>
-      <input type="text" value={image} onChange={(e) => setImage(e.target.value)} />
-      <button onClick={okclick}>ОК</button>
-      <button onClick={prop.cancelclick}>Отмена</button>
-    </form>
-  </div> 
-}
-
-function Minecraft(prop: {executer : string}) {
-  const [isNew, setIsNew] = useState(false);
-  const [isLook, setIsLook] = useState(false);
-  const [selectedMob, setSelectedMob] = useState<Mob | null>(null);
-  const [moblist, setMoblist] = useState<Array<Mob>>([]);
-
-  const showwindow: MouseEventHandler = (e) => { 
-    e.preventDefault, 
-    setIsNew(!isNew) 
+  const onCreateMob: () => void = () => { 
+    setTimeout(() => {
+      setIsModal("new");
+    }, 350);
   };
 
-  const getmob: (newMob: Mob) => void = (newMob: Mob) => {
-    setMoblist([...moblist, newMob]); // Добавляем нового моба в список
-    setIsNew(false); // Закрываем окно создания моба
+  const onAppendMob: (newMob: Mob) => void = (newMob: Mob) => {
+    setTimeout(() => {
+      if (newMob.name === "" || newMob.nickname === "" || newMob.image === "")
+      {
+        setAlertMessage("Заполните все поля!");
+        return;
+      }
+      if (moblist.find(n => (n.id === newMob.id)) !== undefined || newMob.id <= 0)
+        {
+          setAlertMessage("ID моба не должен повторяться и должен быть больше нуля!");
+          return;
+        }
+      setMoblist([...moblist, newMob]);
+      setAlertMessage(null);
+      setIsModal(null);
+    }, 350);
   };
 
-  const showdetail: (newMob: Mob) => void = (mob: Mob) => {
-    setSelectedMob(mob);
-    setIsLook(!isLook);
+  const onMobItemClick: (mobID: number) => void = (mobID: number) => {
+    setTimeout(() => {
+      setSelectedMobID(mobID);
+      setIsModal("detail");
+    }, 350);
   };
 
-  const allcancel: MouseEventHandler = (e) => { 
-    e.preventDefault, 
-    setIsNew(false);
-    setIsLook(false); 
+  const onCloseModal: () => void = () => { 
+    setTimeout(() => {
+      setIsModal(null);
+    }, 350);
   };
 
-  const removemob: MouseEventHandler = (e) => {
-    e.preventDefault; 
-    if (selectedMob) {
-      setMoblist(moblist.filter(m => m.id !== selectedMob.id));
-      setIsLook(false);
-      setSelectedMob(null);
-    }
+  const onRemoveMobItem: () => void = () => {
+    setTimeout(() => {
+      if (selectedMobID) {
+        setMoblist(moblist.filter(m => m.id !== selectedMobID));
+        setIsModal(null);
+        setSelectedMobID(null);
+      }
+    }, 350);
   };
 
-  return <div>
-    <p>{prop.executer}</p>
-    {
-      isNew ? (<CreateMob savemob={getmob} cancelclick={allcancel}/>) : <p></p>
-    }
-    {
-      (isLook && selectedMob != null) ? (<DetailMob mob={selectedMob} removeclick={removemob} cancelclick={allcancel}/>) : <p></p>
-    }
+  const selectedMob = moblist.find(n => (n.id == selectedMobID));
 
-    <MobList list={moblist} onMobClick={showdetail}/>    
-    <button onClick={showwindow}>Добавить</button>
+  return <div>    
+    <p>{executer}</p>
+    { isModal == 'new' && (<ModalWindow onCancelClick={onCloseModal}>
+      <ModalMobCreate onSaveMob={onAppendMob} onCancelClick={onCloseModal}/>
+    </ModalWindow> )}
+    { (isModal == 'detail' && selectedMob !== undefined) && (<ModalWindow onCancelClick={onCloseModal}>
+      <ModalMobDetail mob={selectedMob} onRemoveClick={onRemoveMobItem} onCancelClick={onCloseModal}/>
+    </ModalWindow> )}
+    { moblist.length !== 0 ? <MobList moblist={moblist} onItemClick={onMobItemClick}/>    
+      : <p>Список мобов пуст</p> }
+    <button onClick={onCreateMob}>Добавить</button>
+    { alertMessage && <AlertMessage message={alertMessage}/> }
   </div>
 }
 
 function SecondTask() {
-  return <Minecraft executer="Spatial"/>;
+  return <MinecraftMobManager executer={executor}/>;
 }
 
 export default SecondTask;
